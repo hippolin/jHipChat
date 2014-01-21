@@ -1,6 +1,6 @@
-/*   
+/*
  * Copyright [2012] [Nicholas Campion]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Authored by Nick Campion campnic@gmail.com
  */
 
@@ -37,6 +37,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.github.hipchat.api.messages.HistoryMessage;
 import com.github.hipchat.api.messages.Message.Color;
+import com.github.hipchat.api.messages.Message.Format;
 import com.github.hipchat.api.messages.MessageParser;
 
 public class Room extends RoomId
@@ -189,7 +190,19 @@ public class Room extends RoomId
         return messages;
     }
 
-    public boolean sendMessage(String message, UserId from, boolean notify, Color color)
+    public boolean sendMessage(String message, UserId from, boolean notify, Color color) {
+		return sendMessage(message, from, notify, color, Format.HTML);
+    }
+
+    /**
+     * Send a message to a room.
+     * @param message The message body. 10,000 characters max.
+     * @param from Sender
+     * @param notify Whether or not this message should trigger a notification for people in the room (change the tab color, play a sound, etc). Each recipient's notification preferences are taken into account. 0 = false, 1 = true
+     * @param color Background color for message.
+     * @return
+     */
+    public boolean sendMessage(String message, UserId from, boolean notify, Color color, Format messageFormat)
     {
         String query = String.format(HipChatConstants.ROOMS_MESSAGE_QUERY_FORMAT, HipChatConstants.JSON_FORMAT, getOrigin().getAuthToken());
 
@@ -225,6 +238,9 @@ public class Room extends RoomId
             params.append("&color=");
             params.append(color.name().toLowerCase());
         }
+
+        params.append("&message_format=");
+        params.append(messageFormat.toString().toLowerCase());
 
         final String paramsToSend = params.toString();
 
